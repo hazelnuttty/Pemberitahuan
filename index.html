@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maintenance Mode</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #21262d;
+      color: #c9d1d9;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 700px;
+      margin: 80px auto 40px;
+      padding: 30px 20px;
+      border: 1px solid #30363d;
+      background-color: #2d333b;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s 
+      transform 1s ease;
+    }
+
+    .container.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h1 {
+     font-size: 2em;
+     margin-bottom: 16px;
+     color: #58a6ff;
+    }
+
+    p {
+      font-size: 1.1em;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .loader {
+      border: 6px solid #30363d;
+      border-top: 6px solid #58a6ff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 30px;
+    }
+
+    .info {
+      margin-bottom: 20px;
+      font-size: 1em;
+    }
+
+    .status-online {
+      color: #3fb950;
+      font-weight: bold;
+    }
+
+    .status-offline {
+      color: #f85149;
+      font-weight: bold;
+    }
+
+    .btn-group {
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin: 5px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      color: white;
+      background-color: #238636;
+      transition: background 0.3s ease;
+    }
+
+    .btn.discord {
+      background-color: #5865F2;
+    }
+
+    .btn:hover {
+      opacity: 0.8;
+    }
+
+    footer {
+      text-align: center;
+      margin: 60px 0 20px;
+      font-size: 0.9em;
+      opacity: 0.6;
+      color: #8b949e;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainBox">
+    <h1>Announcement</h1>
+    <p>Situs akan di reset pada jam 11 dan akan di matikan pada saat itu juga untuk menjaga privasi yang memakai web kita, Terimakasih — HAZELNUT</p>
+    <div class="loader"></div>
+
+    <div class="info">
+      <div>Server Status: <span id="status">Memuat...</span></div>
+      <div>Layanan Berjalan: <span id="uptime">--:--:--</span></div>
+    </div>
+
+    <div class="btn-group">
+      <a href="https://wa.me/6285183131924" class="btn">WhatsApp Number</a>
+      <a href="https://whatsapp.com/channel/0029Vb601hd2v1IxmXcxK00u" class="btn discord">Channel WhatsApp</a>
+    </div>
+  </div>
+
+  <footer>© <span id="year"></span> Hazelnut. All rights reserved.</footer>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const uptimeEl = document.getElementById('uptime');
+    const yearEl = document.getElementById('year');
+    const mainBox = document.getElementById('mainBox');
+
+    yearEl.textContent = new Date().getFullYear();
+
+    // Scroll animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.3 });
+
+    observer.observe(mainBox);
+
+    // Simpan waktu server berjalan
+    if (!localStorage.getItem('serverStart')) {
+      localStorage.setItem('serverStart', new Date().toISOString());
+    }
+
+    const serverStart = new Date(localStorage.getItem('serverStart'));
+
+    function updateStatus() {
+      const now = new Date();
+      const hour = now.getHours();
+
+      // Status server
+      if (hour >= 23 || hour < 6) {
+        statusEl.textContent = 'Offline';
+        statusEl.className = 'status-offline';
+      } else {
+        statusEl.textContent = 'Online';
+        statusEl.className = 'status-online';
+      }
+
+      // Hitung uptime
+      const diff = new Date(now - serverStart);
+      const h = diff.getUTCHours().toString().padStart(2, '0');
+      const m = diff.getUTCMinutes().toString().padStart(2, '0');
+      const s = diff.getUTCSeconds().toString().padStart(2, '0');
+      uptimeEl.textContent = `${h}:${m}:${s}`;
+    }
+
+    setInterval(updateStatus, 1000);
+    updateStatus();
+  </script>
+</body>
+</html>
